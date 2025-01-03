@@ -238,12 +238,28 @@ function ProductList() {
     setShowCart(true); // Set showCart to true when cart icon is clicked
 };
 const handleAddToCart = (product) => {
-    dispatchEvent(addItem(product));
+    const isAdded = addedToCart[product.name] || false;
+
+    if (isAdded) {
+        dispatch(removeItem(product));
+    } else {
+        dispatch(addItem(product));
+    }
+    
     setAddedToCart((prevState) => ({
         ...prevState,
-        [product.name]: true,
+        [product.name]: !isAdded, // Toggle the added state
     }));
 };
+
+const calculateTotalItems = () => {
+    let totalItems = 0;
+    cartItems.forEach(item => {
+      totalItems += item.quantity;
+    });
+    return totalItems;
+  };
+
 const handlePlantsClick = (e) => {
     e.preventDefault();
     setShowPlants(true); // Set showAboutUs to true when "About Us" link is clicked
@@ -286,7 +302,12 @@ const handlePlantsClick = (e) => {
                 <div className="product-title">{plant.name}</div>
                 <div className='product-description'>{plant.description}</div>
                 <div className="product-cost">{plant.cost}</div>
-                <button  className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+                <button 
+                    className={`product-button ${addedToCart[plant.name] ? 'added-to-cart' : ''}`} 
+                    onClick={() => handleAddToCart(plant)}
+                  >
+                    {addedToCart[plant.name] ? 'Added to Cart' : 'Add to Cart'}
+                  </button>
             </div>
             ))}
         </div>
@@ -297,7 +318,7 @@ const handlePlantsClick = (e) => {
 
         </div>
  ) :  (
-    <CartItem onContinueShopping={handleContinueShopping}/>
+    <CartItem onContinueShopping={handleContinueShopping} handleAddToCart={handleAddToCart}/>
 )}
     </div>
     );
